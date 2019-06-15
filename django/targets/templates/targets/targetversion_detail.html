@@ -20,43 +20,19 @@
 {% endblock %}
 
 {% block content %}
-{% cache_until "any_package_updated" "mod-version-detail" 300 object.pk %}
+{% cache_until "any_target_updated" "mod-version-detail" 300 object.pk %}
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url "packages.list_by_owner" object.owner.name %}">{{ object.owner.name }}</a></li>
-    {% if object.package.is_effectively_active %}
-    <li class="breadcrumb-item"><a href="{{ object.package.get_absolute_url }}">{{ object.package.display_name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url "targets.list" %}">Targets</a></li>
+    {% if object.target.is_effectively_active %}
+    <li class="breadcrumb-item"><a href="{{ object.target.get_absolute_url }}">{{ object.target.display_name }}</a></li>
     {% else %}
-    <li class="breadcrumb-item text-dark">{{ object.package.display_name }}</li>
+    <li class="breadcrumb-item text-dark">{{ object.target.display_name }}</li>
     {% endif %}
     <li class="breadcrumb-item active" aria-current="page">{{ object.version_number }}</li>
   </ol>
 </nav>
-
-{% if object.is_deprecated %}
-    <div class="alert alert-danger" role="alert">
-        This package has been marked as deprecated, and it's suggested another
-        alternative is used.
-    </div>
-{% endif %}
-{% if not object.package.is_effectively_active %}
-    <div class="alert alert-danger" role="alert">
-        This package has been disabled by the author, and is not recommended to
-        be used.
-    </div>
-{% else %}
-    {% if not object.is_active %}
-    <div class="alert alert-danger" role="alert">
-        This package version has been disabled by the author, and is not recommended
-        to be used. Use a newer version instead.
-    </div>
-    {% endif %}
-    <div class="alert alert-secondary">
-        You are viewing a potentially older version of this package.
-        <a href="{{ object.package.get_absolute_url }}">View all versions.</a>
-    </div>
-{% endif %}
 
 <div class="media mt-4">
     <img class="align-self-center mr-3" src="{% thumbnail object.icon 128x128 %}" alt="{{ object }} icon">
@@ -64,7 +40,6 @@
         <h1 class="mt-0">{{ object.display_name }}</h1>
         <p>{{ object.description }}</p>
         <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">By <a href="{{ object.owner_url }}">{{ object.owner.name }}</a></h5>
             {% if object.website_url %}
             <a href="{{ object.website_url }}">{{ object.website_url }}</a>
             {% endif %}
@@ -75,7 +50,7 @@
 <table class="table mt-2">
     <tr>
         <td>Date uploaded</td>
-        <td>{% humanize_timestamp object.date_created %}</td>
+        <td>{% humanize_timestamp object.date_added %}</td>
     </tr>
     <tr>
         <td>Version</td>
@@ -93,19 +68,6 @@
         <td>{{ object.full_version_name }}</td>
     </tr>
 </table>
-
-<div class="card bg-light mb-3 mt-2">
-    <div class="card-header">README</div>
-    <div class="card-body markdown-body">
-        {{ object.readme|markdownify }}
-    </div>
-</div>
-
-{% with object.dependencies.all as dependencies %}
-{% if dependencies %}
-    {% include "repository/includes/dependencies.html" with dependencies=dependencies %}
-{% endif %}
-{% endwith %}
 
 {% endcache %}
 {% endblock %}

@@ -17,7 +17,7 @@ $gray-800: #303030 !default;
 $gray-900: #222 !default;
 $black:    #000 !default;
 
-$blue:    #375a7f !default;
+$blue:    #1890ff !default;
 $indigo:  #6610f2 !default;
 $purple:  #6f42c1 !default;
 $pink:    #e83e8c !default;
@@ -41,8 +41,8 @@ $yiq-contrasted-threshold:  175 !default;
 
 // Body
 
-$body-bg:                   $gray-900 !default;
-$body-color:                $white !default;
+$body-bg:                   $white !default;
+$body-color:                $gray-900 !default;
 
 // Links
 
@@ -70,7 +70,7 @@ $table-dark-color:            $body-bg !default;
 
 // Forms
 
-$input-border-color:                    transparent !default;
+$input-border-color:                    $primary !default;
 
 $input-group-addon-color:               $gray-500 !default;
 $input-group-addon-bg:                  $gray-700 !default;
@@ -105,8 +105,8 @@ $navbar-padding-y:                  1rem !default;
 $navbar-dark-color:                 $white !default;
 $navbar-dark-hover-color:           $success !default;
 
-$navbar-light-color:                rgba($white,.5) !default;
-$navbar-light-hover-color:          $white !default;
+$navbar-light-color:                $white !default;
+$navbar-light-hover-color:          darken($white, 10%) !default;
 $navbar-light-active-color:         $white !default;
 $navbar-light-disabled-color:       rgba($white,.3) !default;
 $navbar-light-toggler-border-color: rgba($white,.1) !default;
@@ -119,7 +119,7 @@ $pagination-border-width:           0 !default;
 $pagination-border-color:           transparent !default;
 
 $pagination-hover-color:            $white !default;
-$pagination-hover-bg:               lighten($success, 10%) !default;
+$pagination-hover-bg:               darken($success, 10%) !default;
 $pagination-hover-border-color:     transparent !default;
 
 $pagination-active-bg:              $pagination-hover-bg !default;
@@ -166,7 +166,7 @@ $list-group-hover-bg:               $gray-700 !default;
 
 // Breadcrumbs
 
-$breadcrumb-bg:                     $gray-700 !default;
+$breadcrumb-bg:                     transparent !default;
 
 // Close
 

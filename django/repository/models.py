@@ -16,6 +16,8 @@ from django.utils.functional import cached_property
 from core.cache import CacheBustCondition, invalidate_cache
 from core.utils import ChoiceEnum
 
+from targets.models import Target, TargetVersion
+
 from webhooks.models import Webhook, WebhookType
 
 
@@ -447,6 +449,21 @@ class PackageVersion(models.Model):
 
 signals.post_save.connect(PackageVersion.post_save, sender=PackageVersion)
 signals.post_delete.connect(PackageVersion.post_delete, sender=PackageVersion)
+
+
+class PackageCompatibility(models.Model):
+    package_version = models.ForeignKey(PackageVersion, models.CASCADE)
+    target = models.ForeignKey(Target, models.CASCADE)
+    min_version = models.ForeignKey(
+        TargetVersion,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='min_version')
+    max_version = models.ForeignKey(
+        TargetVersion,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='max_version')
 
 
 class PackageVersionDownloadEvent(models.Model):

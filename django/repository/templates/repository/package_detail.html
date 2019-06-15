@@ -24,7 +24,6 @@
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url "packages.list" %}">Packages</a></li>
     <li class="breadcrumb-item"><a href="{% url "packages.list_by_owner" object.owner.name %}">{{ object.owner.name }}</a></li>
     <li class="breadcrumb-item active" aria-current="page">{{ object.display_name }}</li>
   </ol>

@@ -1,5 +1,7 @@
 from django.urls import path
+from django.views.generic.base import RedirectView
 
+from targets.views import TargetListView
 from repository.views import PackageListView
 from repository.views import PackageDetailView
 from repository.views import PackageCreateView
@@ -12,7 +14,7 @@ from repository.views import PackageVersionDetailView
 urlpatterns = [
     path(
         '',
-        PackageListView.as_view(),
+        RedirectView.as_view(pattern_name="targets.list"),
         name="packages.list"
     ),
     path(

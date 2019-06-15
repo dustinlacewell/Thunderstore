@@ -14,6 +14,10 @@ from repository.urls import urlpatterns as repository_urls
 from repository.views import PackageListView
 from repository.api.v1.viewsets import PackageViewSet
 
+from targets.urls import urlpatterns as target_urls
+from targets.views import TargetListView
+from targets.api.v1.viewsets import TargetViewSet
+
 from social.urls import settings_urls
 
 
@@ -24,10 +28,11 @@ handler404 = "frontend.views.handle404"
 handler500 = "frontend.views.handle500"
 
 urlpatterns = [
-    path('', PackageListView.as_view(), name="index"),
+    path('', TargetListView.as_view(), name="index"),
     path('auth/', include('social_django.urls', namespace='social')),
     path('logout/', LogoutView.as_view(), kwargs={'next_page': '/'}, name="logout"),
-    path('package/', include(repository_urls)),
+    path('apps/', include(target_urls)),
+    path('mods/', include(repository_urls)),
     path('settings/', include(settings_urls)),
     path('favicon.ico', RedirectView.as_view(url="%s%s" % (settings.STATIC_URL, 'favicon.ico'))),
     path('djangoadmin/', admin.site.urls),

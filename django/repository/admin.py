@@ -3,6 +3,7 @@ from django.contrib import admin
 
 from repository.models import Package
 from repository.models import PackageVersion
+from repository.models import PackageCompatibility
 from repository.models import UploaderIdentity
 from repository.models import UploaderIdentityMember
 
@@ -54,6 +55,15 @@ class PackageVersionInline(admin.StackedInline):
     extra = 0
     filter_horizontal = ("dependencies",)
 
+class PackageCompatibilityInline(admin.StackedInline):
+    model = PackageCompatibility
+    extra = 0
+
+@admin.register(PackageVersion)
+class PackageVersionAdmin(admin.ModelAdmin):
+    inlines = [
+        PackageCompatibilityInline
+    ]
 
 @admin.register(Package)
 class PackageAdmin(admin.ModelAdmin):

@@ -6,20 +6,20 @@
     <head>
         {% dynamic_html "html_head" %}
 
-        <title>{% block title %}Mod List{% endblock %} | Thunderstore - The Risk of Rain 2 Mod Database</title>
+        <title>{% block title %}Mod List{% endblock %} | Disunity.io - Unity Mod Database</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="{% block description %}Thunderstore is a mod database and API for downloading Risk of Rain 2 mods{% endblock %}">
+        <meta name="description" content="{% block description %}Disunity.io is a mod database and API for downloading Unity mods{% endblock %}">
 
         {% block opengraph %}
-        <meta property="og:title" content="Thunderstore | Risk of Rain 2 Mod Database" />
+        <meta property="og:title" content="Disunity.io | Unity Mod Database" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="{{ request.build_absolute_uri }}" />
         <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'icon.png' %}" />
         <meta property="og:image:width" content="303" />
         <meta property="og:image:height" content="303" />
 
-        <meta property="og:description" content="Thunderstore is a mod database and API for downloading Risk of Rain 2 mods" />
-        <meta property="og:site_name" content="Thunderstore" />
+        <meta property="og:description" content="Disunity.io is a mod database and API for downloading Unity mods" />
+        <meta property="og:site_name" content="Disunity.io" />
         {% endblock %}
 
         {# CSS and JS #}
@@ -28,11 +28,12 @@
     </head>
     <body>
         {% dynamic_html "html_body_beginning" %}
-        <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
-            <a class="navbar-brand d-none d-md-block" href="{% url 'index' %}">Thunderstore</a>
+        <nav class="navbar navbar-expand-sm navbar-light bg-primary">
+            <a class="navbar-brand d-none d-md-block" href="{% url 'index' %}"><img id="logo" src="{% static 'logo.png' %}" /></a>
+            <a class="navbar-brand d-none d-md-block" href="{% url 'index' %}">Disunity.io</a>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'packages.list' %}">Browse</a>
+                    <a class="nav-link" href="{% url 'targets.list' %}">Apps/Games</a>
                 </li>
                 {% if request.user.is_authenticated %}
                     <li class="nav-item">
@@ -40,7 +41,7 @@
                     </li>
                 {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link" href="https://discord.gg/TY9y9XJ"><span class="fab fa-discord"></span> &nbsp;Join our Discord</a>
+                    <a class="nav-link" href="https://discord.gg/pbyzH6Z"><span class="fab fa-discord"></span> &nbsp;Join our Discord</a>
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">

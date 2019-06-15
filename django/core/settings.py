@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     # Own
     'core',
     'frontend',
+    'targets',
     'repository',
     'social',
     'webhooks',

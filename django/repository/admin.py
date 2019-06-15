@@ -38,8 +38,16 @@ class UploaderIdentityAdmin(admin.ModelAdmin):
     )
 
 
-class PackageVersionInline(admin.StackedInline):
+class PackageVersionInline(admin.TabularInline):
     model = PackageVersion
+    fields = (
+        "version_number",
+        "file",
+        "downloads",
+        "date_created",
+        "is_active"
+    )
+
     readonly_fields = (
         "date_created",
         "dependencies",
@@ -76,10 +84,15 @@ class PackageAdmin(admin.ModelAdmin):
         "downloads",
         "name",
         "owner",
+        "version_number",
     )
+
     list_display = (
         "name",
         "owner",
+        "version_number",
+        "version_count",
+        "downloads",
         "is_active",
         "is_deprecated",
         "is_pinned",

@@ -5,11 +5,17 @@ from targets.models import Target
 from targets.models import TargetVersion
 
 
-class TargetVersionInline(admin.StackedInline):
+class TargetVersionInline(admin.TabularInline):
     model = TargetVersion
     readonly_fields = (
         "date_added",
     )
+    fields = (
+        "version_number",
+        "date_added",
+        "is_active"
+    )
+
     extra = 0
 
 
@@ -20,11 +26,14 @@ class TargetAdmin(admin.ModelAdmin):
     ]
 
     readonly_fields = (
+        "slug",
         "date_added",
     )
     list_display = (
         "name",
-        "latest",
+        "slug",
+        "version_number",
+        "version_count",
         "is_active",
         "is_pinned",
     )
@@ -33,5 +42,5 @@ class TargetAdmin(admin.ModelAdmin):
         "is_pinned",
     )
     search_fields = (
-        "name",
+        "name", "slug"
     )

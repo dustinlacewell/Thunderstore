@@ -11,6 +11,7 @@ from django.db import models, transaction
 from django.db.models import Case, When, Sum, Q, signals
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.functional import cached_property
 
 from core.cache import CacheBustCondition, invalidate_cache
@@ -39,6 +40,7 @@ class Target(models.Model):
     slug = models.SlugField(
         max_length=128,
         unique=True,
+        blank=True
     )
     uuid4 = models.UUIDField(
         default=uuid.uuid4,
@@ -80,12 +82,20 @@ class Target(models.Model):
         return self.versions.filter(pk__in=pk_list).order_by(preserved)
 
     @property
+    def version_count(self):
+        return self.available_versions.count()
+
+    @property
     def latest(self):
         return self.available_versions.last()
 
-    @property
     def version_number(self):
         return self.latest.version_number
+    version_number.short_description = 'Latest Version'
+
+    @property
+    def downloads(self):
+        return self.available_versions.aggregate(downloads=models.Sum("downloads"))["downloads"]
 
     @cached_property
     def is_effectively_active(self):
@@ -121,6 +131,10 @@ class Target(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Target, self).save(*args, **kwargs)
 
     @staticmethod
     def post_save(sender, instance, created, **kwargs):

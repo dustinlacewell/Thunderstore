@@ -151,6 +151,18 @@ class Package(models.Model):
         preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
         return self.versions.filter(pk__in=pk_list).order_by(preserved)
 
+    @property
+    def version_count(self):
+        return self.available_versions.count()
+
+    @property
+    def latest(self):
+        return self.available_versions.last()
+
+    def version_number(self):
+        return self.latest.version_number
+    version_number.short_description = 'Latest Version'
+
     @cached_property
     def downloads(self):
         # TODO: Caching

@@ -254,11 +254,11 @@ class Package(models.Model):
         return self.full_package_name
 
     @staticmethod
-    def post_save(sender, instance, created, **kwargs):
+    def post_save(sender, instance, **kwargs):
         invalidate_cache(CacheBustCondition.any_package_updated)
 
     @staticmethod
-    def post_delete(sender, instance, created, **kwargs):
+    def post_delete(sender, instance, **kwargs):
         invalidate_cache(CacheBustCondition.any_package_updated)
 
 

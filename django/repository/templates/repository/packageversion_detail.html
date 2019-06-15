@@ -52,7 +52,7 @@
         to be used. Use a newer version instead.
     </div>
     {% endif %}
-    <div class="alert alert-secondary">
+    <div class="alert alert-warning">
         You are viewing a potentially older version of this package.
         <a href="{{ object.package.get_absolute_url }}">View all versions.</a>
     </div>
@@ -94,7 +94,7 @@
     </tr>
 </table>
 
-<div class="card bg-light mb-3 mt-2">
+<div class="card mb-3 mt-2">
     <div class="card-header">README</div>
     <div class="card-body markdown-body">
         {{ object.readme|markdownify }}

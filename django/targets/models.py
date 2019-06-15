@@ -73,7 +73,8 @@ class Target(models.Model):
     def available_versions(self):
         # TODO: Caching
         versions = self.versions.filter(is_active=True).values_list("pk", "version_number")
-        ordered = sorted(versions, key=lambda version: version[1])
+        ordered = sorted(versions, key=lambda version: version[0])
+        ordered.reverse()
         pk_list = [version[0] for version in reversed(ordered)]
         preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
         return self.versions.filter(pk__in=pk_list).order_by(preserved)
@@ -113,14 +114,6 @@ class Target(models.Model):
 
     def handle_created_version(self, version):
         self.date_updated = timezone.now()
-
-        if self.latest:
-            new_version = version.version_number
-            old_version = self.latest.version_number
-            if new_version > old_version:
-                self.latest = version
-        else:
-            self.latest = version
         self.save()
 
     def handle_deleted_version(self, version):

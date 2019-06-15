@@ -8,7 +8,9 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 
-from repository.models import PackageVersion, Package
+from repository.models import PackageVersion, Package, PackageCompatibility
+
+from targets.models import Target, TargetVersion
 
 MAX_PACKAGE_SIZE = 1024 * 1024 * 500
 MAX_ICON_SIZE = 1024 * 1024 * 6
@@ -30,19 +32,19 @@ class PackageVersionForm(forms.ModelForm):
     def validate_manifest(self, manifest):
         try:
             self.manifest = json.loads(manifest)
-            if "name" not in self.manifest:
+            if "Name" not in self.manifest:
                 raise ValidationError("manifest.json must contain a name")
             max_length = PackageVersion._meta.get_field("name").max_length
-            if len(self.manifest["name"]) > max_length:
+            if len(self.manifest["Name"]) > max_length:
                 raise ValidationError(f"Package name is too long, max: {max_length}")
-            if not re.match(NAME_PATTERN, self.manifest["name"]):
+            if not re.match(NAME_PATTERN, self.manifest["Name"]):
                 raise ValidationError(
                     f"Package names can only contain a-Z A-Z 0-9 _ characers"
                 )
 
-            if "version_number" not in self.manifest:
-                raise ValidationError("manifest.json must contain version")
-            version = self.manifest["version_number"]
+            if "Version" not in self.manifest:
+                raise ValidationError("manifest.json must contain Version")
+            version = self.manifest["Version"]
             max_length = PackageVersion._meta.get_field("version_number").max_length
             if len(version) > max_length:
                 raise ValidationError(f"Package version number is too long, max: {max_length}")
@@ -53,35 +55,86 @@ class PackageVersionForm(forms.ModelForm):
 
             same_version_exists = Package.objects.filter(
                 owner=self.owner,
-                name=self.manifest["name"],
+                name=self.manifest["Name"],
                 versions__version_number=version
             ).exists()
 
             if same_version_exists:
                 raise ValidationError("Package of the same name and version already exists")
 
-            if "website_url" not in self.manifest:
+            if "Url" not in self.manifest:
                 raise ValidationError("manifest.json must contain a website_url (Leave empty string if none)")
             max_length = PackageVersion._meta.get_field("website_url").max_length
             if len(self.manifest.get("website_url", "")) > max_length:
                 raise ValidationError(f"Package website url is too long, max: {max_length}")
 
-            if "description" not in self.manifest:
+            if "Description" not in self.manifest:
                 raise ValidationError("manifest.json must contain a description")
             max_length = PackageVersion._meta.get_field("description").max_length
             if len(self.manifest.get("description", "")) > max_length:
                 raise ValidationError(f"Package description is too long, max: {max_length}")
 
             self.validate_manifest_dependencies(self.manifest)
+            self.validate_manifest_targets(self.manifest)
 
         except json.decoder.JSONDecodeError:
             raise ValidationError("Package manifest.json is in invalid format")
 
+    def validate_manifest_targets(self, manifest):
+        if "Targets" not in manifest:
+            raise ValiationError("manifest.json must contain Targets field")
+
+        targets = manifest["Targets"]
+
+        if type(targets) is not dict:
+            raise ValidationError("The 'Targets' manifest.json field should be a dictionary")
+
+        self.targets = {}
+
+        for target in targets:
+            target_data = targets[target]
+            if type(target_data) is not dict:
+                raise ValidationError(f"The 'Targets' manifest.json field entry '{target}' should be a dictionary")
+
+            try:
+                target_instance = Target.objects.get(slug=target)
+            except Target.DoesNotExist:
+                raise ValidationError(f"The app or game target '{target}' does not exist")
+
+            min_version = target_data.get("MinVersion", None)
+            max_version = target_data.get("MaxVersion", None)
+            min_version_instance = max_version_instance = None
+
+            if min_version:
+                try:
+                    min_version_instance = TargetVersion.objects.get(
+                        target=target_instance,
+                        version_number=min_version
+                    )
+                except TargetVersion.DoesNotExist:
+                    raise ValidationERror(f"The app or game target '{target}' has no version '{min_version}'")
+            if max_version:
+                try:
+                    max_version_instance = TargetVersion.objects.get(
+                        target=target_instance,
+                        version_number=max_version
+                    )
+                except TargetVersion.DoesNotExist:
+                    raise ValidationError(f"The app or game target '{target}' has no version '{max_version}'")
+
+            if min_version_instance and max_version_instance and min_version_instance.pk > max_version_instance.pk:
+                raise ValidationError(f"The app or game target '{target}' has a minimum version higher than the specified maximum version")
+
+            self.targets[target] = {
+                "MinVersion": min_version,
+                "MaxVersion": max_version
+            }
+
     def validate_manifest_dependencies(self, manifest):
-        if "dependencies" not in manifest:
+        if "Dependencies" not in manifest:
             raise ValidationError("manifest.json must contain a dependencies field")
 
-        dependency_strings = manifest["dependencies"]
+        dependency_strings = manifest["Dependencies"]
 
         if type(dependency_strings) is not list:
             raise ValidationError("The dependencies manifest.json field should be a list")
@@ -173,8 +226,8 @@ class PackageVersionForm(forms.ModelForm):
                 try:
                     manifest = unzip.read("manifest.json")
                     self.validate_manifest(manifest)
-                except KeyError:
-                    raise ValidationError("Package is missing manifest.json")
+                except KeyError as e:
+                    raise ValidationError(f"Package is missing manifest.json: {e}")
 
                 try:
                     icon = unzip.read("icon.png")
@@ -196,10 +249,10 @@ class PackageVersionForm(forms.ModelForm):
         return file
 
     def save(self):
-        self.instance.name = self.manifest["name"]
-        self.instance.version_number = self.manifest["version_number"]
-        self.instance.website_url = self.manifest["website_url"]
-        self.instance.description = self.manifest["description"]
+        self.instance.name = self.manifest["Name"]
+        self.instance.version_number = self.manifest["Version"]
+        self.instance.website_url = self.manifest["Url"]
+        self.instance.description = self.manifest["Description"]
         self.instance.readme = self.readme
         self.instance.package = Package.objects.get_or_create(
             owner=self.owner,
@@ -209,4 +262,5 @@ class PackageVersionForm(forms.ModelForm):
         instance = super(PackageVersionForm, self).save()
         for dependency in self.dependencies:
             instance.dependencies.add(dependency)
+
         return instance

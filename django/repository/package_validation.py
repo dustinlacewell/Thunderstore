@@ -17,11 +17,51 @@ class Manifest():
 
     @property
     def name(self):
-        return self.data_dict.get("name", None)
+        return self.data_dict.get("Name", None)
 
     @property
     def version_number(self):
-        return self.data_dict.get("version_number", None)
+        return self.data_dict.get("Version", None)
+
+    @property
+    def content_types(self):
+        return self.data_dict.get("ContentTypes", 0)
+
+    @property
+    def author(self):
+        return self.data_dict.get("Author", None)
+
+    @property
+    def dependencies(self):
+        return self.data_dict.get("Dependencies", [])
+
+    @property
+    def artifacts(self):
+        return self.data_dict.get("Artifacts", [])
+
+    @property
+    def preload_assemblies(self):
+        return self.data_dict.get("PreloadAssemblies", [])
+
+    @property
+    def runtime_assemblies(self):
+        return self.data_dict.get("RuntimeAssemblies", [])
+
+    @property
+    def runtime_class(self):
+        return self.data_dict.get("RuntimeClass", None)
+
+    @property
+    def runtime_assembly(self):
+        return self.data_dict.get("RuntimeAssembly", None)
+
+    @property
+    def preload_class(self):
+        return self.data_dict.get("PreloadClass", None)
+
+    @property
+    def preload_assembly(self):
+        return self.data_dict.get("PreloadAssembly", None)
 
 
 def validate_field_name(name):
@@ -115,10 +155,10 @@ def validate_generic(uploader, manifest):
 
 
 def validate_dependencies(manifest):
-    if "dependencies" not in manifest:
+    if "Dependencies" not in manifest:
         raise ValidationError("manifest.json must contain a dependencies field")
 
-    dependency_strings = manifest["dependencies"]
+    dependency_strings = manifest["Dependencies"]
 
     if type(dependency_strings) is not list:
         raise ValidationError("The dependencies manifest.json field should be a list")

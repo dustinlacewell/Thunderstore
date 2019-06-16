@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='packageversion',
             name='file',
-            field=models.FileField(storage=django.core.files.storage.FileSystemStorage(), upload_to=repository.models.get_version_zip_filepath),
+            field=models.FileField(storage=django.core.files.storage.FileSystemStorage(), upload_to=repository.utils.get_version_zip_filepath),
         ),
         migrations.AddField(
             model_name='packagecompatibility',

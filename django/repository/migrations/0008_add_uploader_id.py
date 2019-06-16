@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='packageversion',
             name='file',
-            field=models.FileField(storage=backblaze_b2.storage.BackblazeB2Storage(), upload_to=repository.models.get_version_zip_filepath),
+            field=models.FileField(storage=backblaze_b2.storage.BackblazeB2Storage(), upload_to=repository.utils.get_version_zip_filepath),
         ),
         migrations.AlterUniqueTogether(
             name='uploaderidentitymember',

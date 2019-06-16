@@ -3,18 +3,20 @@
 {% block title %}Upload{% endblock %}
 
 {% block content %}
-<h1 class="mt-4">Upload package</h1>
+    <h1 class="mt-4">Upload package</h1>
 
-<form class="mt-4" method="post" enctype="multipart/form-data" novalidate>
-    <div class="text-danger">
-        {{ form.non_field_errors }}
-        {{ form.file.errors }}
-    </div>
-    {% csrf_token %}
-    <label for="id_file" class="btn btn-primary btn-lg btn-block" id="file_drop"></label>
-    <input type="file" class="btn btn-primary btn-lg btn-block" name="file" required="" id="id_file" style="display:none;"></p>
-    <input type="submit" class="btn btn-primary btn-lg btn-block" value="Upload">
-</form>
+    <form class="mt-4" method="post" enctype="multipart/form-data" novalidate>
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">{{error}}</div>
+        {% endfor %}
+        {% for error in form.file.errors %}
+            <div class="alert alert-danger">{{error}}</div>
+        {% endfor %}
+        {% csrf_token %}
+        <label for="id_file" class="btn btn-primary btn-lg btn-block" id="file_drop"></label>
+        <input type="file" class="btn btn-primary btn-lg btn-block" name="file" required="" id="id_file" style="display:none;"></p>
+        <input type="submit" class="btn btn-primary btn-lg btn-block" value="Upload">
+    </form>
 
 <h2 class="mt-4">Mod package requirements</h2>
 

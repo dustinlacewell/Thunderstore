@@ -9,19 +9,17 @@
 {% block content %}
 {% cache_until "any_package_updated" "mod-list" 300 page_obj.number cache_vary %}
 
-{% if breadcrumbs %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
         {% if forloop.last %}
             <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb.name }}</li>
         {% else %}
-            <li class="breadcrumb-item"><a href="{{ breadcrumb.url }}">{{ breadcrumb.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ breadcrumb.url }}">{{ breadcrumb.name }}??</a></li>
         {% endif %}
     {% endfor %}
   </ol>
 </nav>
-{% endif %}
 
 <div class="row">
     <h3 class="col-12 mt-4">{{ page_title }}</h2>
@@ -82,7 +80,7 @@
                         {# 0&nbsp;<i class="fas fa-thumbs-up text-dark ml-1"></i> #}
                     {# </div> #}
                 </div>
-                <h5 class="mb-0 overflow-hidden text-nowrap w-100">{{ object.display_name }}</h5>
+                <h5 class="mb-0 overflow-hidden text-nowrap w-100">{{ object.name }}</h5>
                 <div class="overflow-hidden text-nowrap w-100">By <a href="{{ object.owner_url }}">{{ object.owner.name }}</a></div>
             </div>
             <div class="bg-light px-2 flex-grow-1">

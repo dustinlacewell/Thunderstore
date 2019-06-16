@@ -13,6 +13,7 @@ from repository.models import Package
 from webhooks.models import Webhook, WebhookType
 from repository.utils import get_version_zip_filepath, get_version_png_filepath
 
+
 class PackageVersion(models.Model):
     package = models.ForeignKey(
         "Package",
@@ -24,13 +25,6 @@ class PackageVersion(models.Model):
     )
     date_created = models.DateTimeField(
         auto_now_add=True,
-    )
-    downloads = models.PositiveIntegerField(
-        default=0
-    )
-
-    name = models.CharField(
-        max_length=Package._meta.get_field("name").max_length,
     )
     version_number = models.CharField(
         max_length=16,
@@ -47,20 +41,18 @@ class PackageVersion(models.Model):
         symmetrical=False,
         blank=True,
     )
+    downloads = models.PositiveIntegerField(
+        default=0
+    )
     readme = models.TextField()
 
-    # <packagename>.zip
     file = models.FileField(
         upload_to=get_version_zip_filepath,
         storage=get_storage_class(settings.PACKAGE_FILE_STORAGE)(),
     )
-    # <packagename>.png
+
     icon = models.ImageField(
         upload_to=get_version_png_filepath,
-    )
-    uuid4 = models.UUIDField(
-        default=uuid.uuid4,
-        editable=False
     )
 
     class Meta:
@@ -70,15 +62,21 @@ class PackageVersion(models.Model):
         return reverse(
             "packages.version.detail",
             kwargs={
-                "owner": self.owner.name,
-                "name": self.name,
+                "owner": self.owner.slug,
+                "name": self.slug,
                 "version": self.version_number
             }
         )
 
+    # Proxied properties
+
     @property
-    def display_name(self):
-        return self.name.replace("_", " ")
+    def name(self):
+        return self.package.name
+
+    @property
+    def slug(self):
+        return self.package.slug
 
     @property
     def owner_url(self):
@@ -92,15 +90,17 @@ class PackageVersion(models.Model):
     def is_deprecated(self):
         return self.package.is_deprecated
 
+    # Computed properties
+
     @property
     def full_version_name(self):
-        return f"{self.package.full_package_name}-{self.version_number}"
+        return f"{self.package.full_package_name}@{self.version_number}"
 
     @property
     def download_url(self):
         return reverse("packages.download", kwargs={
-            "owner": self.package.owner.name,
-            "name": self.package.name,
+            "owner": self.package.owner.slug,
+            "name": self.package.slug,
             "version": self.version_number,
         })
 
@@ -108,8 +108,8 @@ class PackageVersion(models.Model):
     def install_url(self):
         return "ror2mm://v1/install/%(hostname)s/%(owner)s/%(name)s/%(version)s/" % {
             "hostname": settings.SERVER_NAME,
-            "owner": self.package.owner.name,
-            "name": self.package.name,
+            "owner": self.package.owner.slug,
+            "name": self.package.slug,
             "version": self.version_number,
         }
 

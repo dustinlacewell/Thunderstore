@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from jsonschema import FormatChecker, validate
 from jsonschema.exceptions import ValidationError as SchemaValidationError
 
-from repository.models import PackageVersion
+from repository.models import Package, PackageVersion
 
 NAME_PATTERN = r"^[a-zA-Z0-9 -_]+$"
 WORD_PATTERN = r"^[a-zA-Z0-9-_]+$"
@@ -13,7 +13,7 @@ DLL_PATTERN = r"^[a-zA-Z0-9-_]+\.dll$"
 
 name_schema = {
     "type": "string",
-    "maxLength": PackageVersion._meta.get_field("name").max_length,
+    "maxLength": Package._meta.get_field("name").max_length,
     "pattern": NAME_PATTERN,
 }
 

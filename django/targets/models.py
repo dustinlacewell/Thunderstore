@@ -189,10 +189,6 @@ class TargetVersion(models.Model):
         )
 
     @property
-    def display_name(self):
-        return self.target.name.replace("_", " ")
-
-    @property
     def is_deprecated(self):
         return self.target.is_deprecated
 

@@ -68,7 +68,7 @@ class PackageListSearchView(ListView):
         return queryset.order_by("-is_pinned", "is_deprecated", "-date_updated")
 
     def perform_search(self, queryset, search_query):
-        search_fields = ("name", "owner__name", "latest__description")
+        search_fields = ("name", "slug", "owner__name", "owner__slug", "latest__description")
 
         icontains_query = Q()
         parts = search_query.split(" ")
@@ -131,11 +131,7 @@ class PackageListView(PackageListSearchView):
 class PackageListByOwnerView(PackageListSearchView):
 
     def get_breadcrumbs(self):
-        breadcrumbs = super().get_breadcrumbs()
-        return breadcrumbs + [{
-            "url": reverse_lazy("packages.list_by_owner", kwargs=self.kwargs),
-            "name": self.owner.name,
-        }]
+        return []
 
     def cache_owner(self):
         self.owner = get_object_or_404(
@@ -154,7 +150,7 @@ class PackageListByOwnerView(PackageListSearchView):
         return f"Mods uploaded by {self.owner.name}"
 
     def get_cache_vary(self):
-        return f"authorer-{self.owner.name}"
+        return f"authorer-{self.owner.slug}"
 
 
 class PackageListByDependencyView(PackageListSearchView):
@@ -163,11 +159,11 @@ class PackageListByDependencyView(PackageListSearchView):
 
     def cache_package(self):
         owner = self.kwargs["owner"]
-        owner = get_object_or_404(UploaderIdentity, name=owner)
+        owner = get_object_or_404(UploaderIdentity, slug=owner)
         name = self.kwargs["name"]
         package = (
             self.model.objects.active()
-            .filter(owner=owner, name=name)
+            .filter(owner=owner, slug=name)
             .first()
         )
         if not package:
@@ -182,7 +178,7 @@ class PackageListByDependencyView(PackageListSearchView):
         return self.package.dependants
 
     def get_page_title(self):
-        return f"Mods that depend on {self.package.display_name}"
+        return f"Mods that depend on {self.package.name}"
 
     def get_cache_vary(self):
         return f"dependencies-{self.package.id}"
@@ -193,11 +189,11 @@ class PackageDetailView(DetailView):
 
     def get_object(self, *args, **kwargs):
         owner = self.kwargs["owner"]
-        owner = get_object_or_404(UploaderIdentity, name=owner)
+        owner = get_object_or_404(UploaderIdentity, slug=owner)
         name = self.kwargs["name"]
         package = (
             self.model.objects.active()
-            .filter(owner=owner, name=name)
+            .filter(owner=owner, slug=name)
             .first()
         )
         if not package:
@@ -227,7 +223,7 @@ class PackageVersionDetailView(DetailView):
         owner = self.kwargs["owner"]
         name = self.kwargs["name"]
         version = self.kwargs["version"]
-        package = get_object_or_404(Package, owner__name=owner, name=name)
+        package = get_object_or_404(Package, owner__slug=owner, slug=name)
         version = get_object_or_404(PackageVersion, package=package, version_number=version)
         return version
 

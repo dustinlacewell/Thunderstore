@@ -18,12 +18,12 @@ urlpatterns = [
         name="packages.list"
     ),
     path(
-        'create/',
+        'upload/',
         PackageCreateView.as_view(),
         name="packages.create"
     ),
     path(
-        'download/<str:owner>/<str:name>/<str:version>/',
+        '<str:owner>/<str:name>/<str:version>/download',
         PackageDownloadView.as_view(),
         name="packages.download"
     ),

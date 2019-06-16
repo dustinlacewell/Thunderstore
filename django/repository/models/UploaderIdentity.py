@@ -1,12 +1,20 @@
 from django.db import models, transaction
+from django.utils.text import slugify
 
 from repository.models import (UploaderIdentityMember,
                                UploaderIdentityMemberRole)
+
 
 class UploaderIdentity(models.Model):
     name = models.CharField(
         max_length=64,
         unique=True,
+    )
+
+    slug = models.SlugField(
+        max_length=128,
+        unique=True,
+        blank=True
     )
 
     class Meta:
@@ -15,6 +23,10 @@ class UploaderIdentity(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(UploaderIdentity, self).save(*args, **kwargs)
 
     @classmethod
     @transaction.atomic

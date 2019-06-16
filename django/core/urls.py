@@ -32,12 +32,12 @@ urlpatterns = [
     path('auth/', include('social_django.urls', namespace='social')),
     path('logout/', LogoutView.as_view(), kwargs={'next_page': '/'}, name="logout"),
     path('apps/', include(target_urls)),
-    path('mods/', include(repository_urls)),
     path('settings/', include(settings_urls)),
     path('favicon.ico', RedirectView.as_view(url="%s%s" % (settings.STATIC_URL, 'favicon.ico'))),
     path('djangoadmin/', admin.site.urls),
     path('healthcheck/', lambda request: HttpResponse("OK"), name="healthcheck"),
     path('api/v1/', include((api_v1_router.urls, "api-v1"), namespace="api-v1")),
+    path('', include(repository_urls)),
 ]
 
 swagger_view = get_swagger_view(title="Thunderstore API")

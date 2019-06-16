@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import Case, When, Sum, Q, signals
 from django.utils.functional import cached_property
 from django.urls import reverse
+from django.utils.text import slugify
 from core.cache import CacheBustCondition, invalidate_cache
 
 
@@ -20,7 +21,9 @@ class PackageQueryset(models.QuerySet):
 
 
 class Package(models.Model):
+
     objects = PackageQueryset.as_manager()
+
     owner = models.ForeignKey(
         "repository.UploaderIdentity",
         on_delete=models.PROTECT,
@@ -29,10 +32,17 @@ class Package(models.Model):
     name = models.CharField(
         max_length=128,
     )
+    slug = models.SlugField(
+        max_length=128,
+        blank=True
+    )
     is_active = models.BooleanField(
         default=True,
     )
     is_deprecated = models.BooleanField(
+        default=False,
+    )
+    is_pinned = models.BooleanField(
         default=False,
     )
     date_created = models.DateTimeField(
@@ -41,31 +51,9 @@ class Package(models.Model):
     date_updated = models.DateTimeField(
         auto_now_add=True,
     )
-    uuid4 = models.UUIDField(
-        default=uuid.uuid4,
-        editable=False,
-        unique=True,
-    )
-    is_pinned = models.BooleanField(
-        default=False,
-    )
-    latest = models.ForeignKey(
-        "repository.PackageVersion",
-        on_delete=models.SET_NULL,
-        related_name="+",
-        null=True,
-    )
 
     class Meta:
-        unique_together = ("owner", "name")
-
-    @property
-    def full_package_name(self):
-        return f"{self.owner.name}-{self.name}"
-
-    @property
-    def display_name(self):
-        return self.name.replace("_", " ")
+        unique_together = ("owner", "slug")
 
     @cached_property
     def available_versions(self):
@@ -84,14 +72,11 @@ class Package(models.Model):
     def latest(self):
         return self.available_versions.last()
 
+    # Proxied properties
+
     def version_number(self):
         return self.latest.version_number
     version_number.short_description = 'Latest Version'
-
-    @cached_property
-    def downloads(self):
-        # TODO: Caching
-        return self.versions.aggregate(downloads=Sum("downloads"))["downloads"]
 
     @property
     def icon(self):
@@ -102,16 +87,23 @@ class Package(models.Model):
         return self.latest.website_url
 
     @property
-    def version_number(self):
-        return self.latest.version_number
-
-    @property
     def description(self):
         return self.latest.description
 
     @property
     def dependencies(self):
         return self.latest.dependencies.all()
+
+    # Computed properties
+
+    @property
+    def full_package_name(self):
+        return f"{self.owner.slug}/{self.slug}"
+
+    @cached_property
+    def downloads(self):
+        # TODO: Caching
+        return self.versions.aggregate(downloads=Sum("downloads"))["downloads"]
 
     @cached_property
     def sorted_dependencies(self):
@@ -138,15 +130,15 @@ class Package(models.Model):
 
     @property
     def owner_url(self):
-        return reverse("packages.list_by_owner", kwargs={"owner": self.owner.name})
+        return reverse("packages.list_by_owner", kwargs={"owner": self.owner.slug})
 
     @property
     def dependants_url(self):
         return reverse(
             "packages.list_by_dependency",
             kwargs={
-                "owner": self.owner.name,
-                "name": self.name,
+                "owner": self.owner.slug,
+                "name": self.slug,
             }
         )
 
@@ -157,7 +149,7 @@ class Package(models.Model):
     def get_absolute_url(self):
         return reverse(
             "packages.detail",
-            kwargs={"owner": self.owner.name, "name": self.name}
+            kwargs={"owner": self.owner.slug, "name": self.slug}
         )
 
     @property
@@ -170,6 +162,10 @@ class Package(models.Model):
 
     def __str__(self):
         return self.full_package_name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Package, self).save(*args, **kwargs)
 
     @staticmethod
     def post_save(sender, instance, **kwargs):

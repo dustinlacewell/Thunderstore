@@ -4,11 +4,11 @@
 {% load markdownify %}
 {% load cache_until %}
 
-{% block title %}{{ object.display_name }}{% endblock %}
+{% block title %}{{ object.name }}{% endblock %}
 {% block description %}{{ object.description }}{% endblock %}
 
 {% block opengraph %}
-<meta property="og:title" content="{{ object.display_name }} v{{ object.version_number }}" />
+<meta property="og:title" content="{{ object.name }} v{{ object.version_number }}" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
 <meta property="og:image" content="{% thumbnail object.icon 256x256 %}" />
@@ -26,9 +26,9 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url "targets.list" %}">Targets</a></li>
     {% if object.target.is_effectively_active %}
-    <li class="breadcrumb-item"><a href="{{ object.target.get_absolute_url }}">{{ object.target.display_name }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ object.target.get_absolute_url }}">{{ object.target.name }}</a></li>
     {% else %}
-    <li class="breadcrumb-item text-dark">{{ object.target.display_name }}</li>
+    <li class="breadcrumb-item text-dark">{{ object.target.name }}</li>
     {% endif %}
     <li class="breadcrumb-item active" aria-current="page">{{ object.version_number }}</li>
   </ol>
@@ -37,7 +37,7 @@
 <div class="media mt-4">
     <img class="align-self-center mr-3" src="{% thumbnail object.icon 128x128 %}" alt="{{ object }} icon">
     <div class="media-body">
-        <h1 class="mt-0">{{ object.display_name }}</h1>
+        <h1 class="mt-0">{{ object.name }}</h1>
         <p>{{ object.description }}</p>
         <div class="d-flex w-100 justify-content-between">
             {% if object.website_url %}

@@ -4,11 +4,11 @@
 {% load markdownify %}
 {% load cache_until %}
 
-{% block title %}{{ object.display_name }}{% endblock %}
+{% block title %}{{ object.name }}{% endblock %}
 {% block description %}{{ object.description }}{% endblock %}
 
 {% block opengraph %}
-<meta property="og:title" content="{{ object.display_name }} v{{ object.version_number }}" />
+<meta property="og:title" content="{{ object.name }} v{{ object.version_number }}" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
 <meta property="og:image" content="{% thumbnail object.icon 256x256 %}" />
@@ -25,14 +25,14 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url "targets.list" %}">Targets</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{{ object.display_name }}</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ object.name }}</li>
   </ol>
 </nav>
 
 <div class="media mt-4">
     <img class="align-self-center mr-3" src="{% thumbnail object.icon 128x128 %}" alt="{{ object }} icon">
     <div class="media-body">
-        <h1 class="mt-0">{{ object.display_name }}</h1>
+        <h1 class="mt-0">{{ object.name }}</h1>
     </div>
 </div>
 
